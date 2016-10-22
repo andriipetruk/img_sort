@@ -14,22 +14,32 @@ class Image:
        self.filename = filename
 
    def load(self):
-       img = pImage.open(self.filename)
-       mini_img = img.resize((Image.BLOCK_SIZE, Image.BLOCK_SIZE), pImage.BILINEAR)
+       img = pImage.open(self.filename) #load file
+       mini_img = img.resize((Image.BLOCK_SIZE, Image.BLOCK_SIZE), pImage.BILINEAR) #resize image
        self.t_data = numpy.array(
-           [sum(list(x)) for x in mini_img.getdata()]
+           [sum(list(x)) for x in mini_img.getdata()]      # create array base on image data
        )
-       del mini_img, img
+       del mini_img, img    # clear vars
        return self
 
    def __repr__(self):
-        return self.filename
-
-a = Image('/home/pag/fs/photos/Фото0031.jpg')
-
-print (a.t_data)
+        return self.filename      # return filename
 
 
+class ImagesList:
+    """Build images list for directory"""
+
+    def __init__(self, dirname):
+        self.dirname = dirname
+        self.load()
+
+    def load(self):
+        self.images = Image([os.path.join(self.dirname, filename) for filename in os.listdir(self.dirname)
+                             if filename.endswith('*.jpg')]).load()
+        return self
+
+    def __repr__(self):
+        return self.images
 
 
 
