@@ -4,6 +4,7 @@ from __future__ import print_function, division, absolute_import
 from PIL import Image as pImage
 import numpy
 import os
+import random
 
 class Image:
    """ Load images """
@@ -41,25 +42,28 @@ class ImageList:
             [Image(os.path.join(self.dirname, filename)).load() \
                        for filename in os.listdir(self.dirname)
                            if filename.endswith('.jpg')]
+        random.shuffle(self.images)
         return self
 
     def __repr__(self):
         return '\n'.join((x.filename for x in self.images))
 
-    def html(self):
+    def html(self, indexfile):
         body = ['<html><body>']
         body += ['<img src="'+x.filename+'" width="200"/>' for x in self.images]
         body += ['</body</html>']
-        return '\n'.join(body)
-
+        content = '\n'.join(body)
+        try:
+            indexhtml = open(indexfile, 'w')
+            indexhtml.write(content)
+        except:
+            print("error build index.html")
 
 
 if __name__ == '__main__':
     my = ImageList('/home/pag/fs/photos/')
-    try:
-        indexhtml = open('/home/pag/fs/index.html', 'w')
-        indexhtml.write(my.html())
-    except:
-        print("error build index.html")
+    my.html('/home/pag/fs/index.html')
+
+
 
 
