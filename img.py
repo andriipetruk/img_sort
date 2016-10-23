@@ -9,7 +9,8 @@ import random
 class Image:
    """ Load images """
 
-   BLOCK_SIZE = 20 # var for set mini image size
+   BLOCK_SIZE = 20  # var for set mini image size
+   TRESHOLD = 60  #  max number between the same pictures
 
    def __init__(self, filename):
        self.filename = filename
@@ -29,6 +30,9 @@ class Image:
    def __repr__(self):
         return self.filename      # return filename
 
+   def __mul__(self, other):
+       return sum(1 for x in self.t_data - other.t_data if abs(x) > Image.TRESHOLD)
+
 
 class ImageList:
     """Build images list for directory"""
@@ -38,10 +42,8 @@ class ImageList:
         self.load()
 
     def load(self):
-        self.images = \
-            [Image(os.path.join(self.dirname, filename)).load() \
-                       for filename in os.listdir(self.dirname)
-                           if filename.endswith('.jpg')]
+        self.images = [Image(os.path.join(self.dirname, filename)).load() for filename in os.listdir(self.dirname)
+                       if filename.endswith('.jpg')]
         random.shuffle(self.images)
         return self
 
@@ -50,7 +52,12 @@ class ImageList:
 
     def html(self, indexfile):
         body = ['<html><body>']
-        body += ['<img src="'+x.filename+'" width="200"/>' for x in self.images]
+        for img in self.images:
+            distance = sorted([(img * x, x) for x in self.images], key=lambda x: x[0])
+            body += [
+                '<img src="'+x.filename+'" width="200"/>'
+                for dist, x in distance if dist < 220]
+            body += ['<hr>']
         body += ['</body</html>']
         content = '\n'.join(body)
         try:
@@ -61,9 +68,6 @@ class ImageList:
 
 
 if __name__ == '__main__':
-    my = ImageList('/home/pag/fs/photos/')
-    my.html('/home/pag/fs/index.html')
-
-
-
+   my = ImageList('/home/pag/fs/photos/')
+   my.html('/home/pag/fs/index.html')
 
